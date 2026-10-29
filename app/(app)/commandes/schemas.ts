@@ -30,6 +30,13 @@ export const commandeSchema = z
 
 export type CommandeValeurs = z.infer<typeof commandeSchema>;
 
+export const paiementSchema = z.object({
+  montant: z.number({ error: "Entre le montant" }).int().positive("Entre le montant").max(MONTANT_MAX, "Montant trop grand"),
+  mode: z.enum(["especes", "wave", "orange_money"]),
+});
+
+export type PaiementValeurs = z.infer<typeof paiementSchema>;
+
 /** "25 000" | "25000" -> 25000 ; "" -> vide (NaN, refusé par zod si obligatoire) */
 export const lireMontant = (v: unknown) => {
   const chiffres = String(v ?? "").replace(/\D/g, "");
