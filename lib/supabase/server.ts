@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { io } from "next/cache";
 import { cookies } from "next/headers";
 import type { Database } from "@/lib/database.types";
 
@@ -6,6 +7,9 @@ import type { Database } from "@/lib/database.types";
 // À recréer à chaque requête, ne jamais le partager.
 export async function createClient() {
   const cookieStore = await cookies();
+  // Cache Components : auth-js lit Date.now() pour vérifier l'expiration du jeton.
+  // io() signale une opération d'entrée/sortie : tout ce qui suit est calculé à la requête.
+  await io();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
