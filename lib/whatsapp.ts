@@ -26,7 +26,7 @@ export const MODELES = {
   pret: {
     fr: (v: Vars) =>
       // « commande » est féminin : la phrase reste juste avec tous les modèles (taille basse, robe, boubou…)
-      `Salam ${v.client} 👋\nVotre commande « ${v.modele} » est prête chez ${v.atelier} ✂️\n` +
+      `Salam ${v.client} 👋\nVotre commande « ${v.modele} » est prête chez ${v.atelier} ✂️\n` +
       (v.reste > 0 ? `Reste à payer : ${fcfa(v.reste)}.\n` : `Tout est réglé, merci !\n`) +
       `À bientôt 🙏`,
     wo: (v: Vars) =>
