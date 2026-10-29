@@ -111,6 +111,55 @@ export async function changerStatut(id: string, depuis: Statut, sens: 1 | -1): P
   return { statut: vers };
 }
 
+// Une commande livrée ne s'annule pas (l'argent et la tenue ont déjà changé de main)
+export async function annulerCommande(id: string): Promise<ResultatStatut> {
+  if (!z.uuid().safeParse(id).success) return { erreur: ERREUR_RESEAU };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("commandes")
+    .update({ statut: "annulee" })
+    .eq("id", id)
+    .not("statut", "in", "(livree,annulee)")
+    .select("id");
+  if (error) return { erreur: ERREUR_RESEAU };
+  if (!data.length) return { erreur: DEJA_CHANGE };
+
+  revalidatePath("/", "layout");
+  return { statut: "annulee" };
+}
+
+// L'ancien statut n'est pas conservé : on repart de « Reçue » et le tailleur refait avancer
+export async function reactiverCommande(id: string): Promise<ResultatStatut> {
+  if (!z.uuid().safeParse(id).success) return { erreur: ERREUR_RESEAU };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("commandes")
+    .update({ statut: "recue", pret_le: null, livre_le: null })
+    .eq("id", id)
+    .eq("statut", "annulee")
+    .select("id");
+  if (error) return { erreur: ERREUR_RESEAU };
+  if (!data.length) return { erreur: DEJA_CHANGE };
+
+  revalidatePath("/", "layout");
+  return { statut: "recue" };
+}
+
+// Corrige une erreur de saisie, ou un acompte rendu au client
+export async function supprimerPaiement(paiementId: string): Promise<{ erreur?: string }> {
+  if (!z.uuid().safeParse(paiementId).success) return { erreur: ERREUR_RESEAU };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("paiements").delete().eq("id", paiementId).select("id");
+  if (error) return { erreur: ERREUR_RESEAU };
+  if (!data.length) return { erreur: "Paiement introuvable. Recharge la page." };
+
+  revalidatePath("/", "layout");
+  return {};
+}
+
 export async function ajouterPaiement(commandeId: string, valeurs: PaiementValeurs): Promise<{ erreur?: string }> {
   const parse = paiementSchema.safeParse(valeurs);
   if (!parse.success) return { erreur: parse.error.issues[0].message };

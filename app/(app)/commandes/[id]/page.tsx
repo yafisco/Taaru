@@ -14,9 +14,9 @@ import { EVENEMENTS } from "@/lib/mesures";
 import { createClient } from "@/lib/supabase/server";
 import { afficherTelephone, lienWhatsApp, type Langue } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
-import { MODES_PAIEMENT } from "../schemas";
 import { PaiementSheet } from "./paiement-sheet";
-import { StatutActions } from "./statut-actions";
+import { PaiementsListe } from "./paiements-liste";
+import { AnnulerCommande, StatutActions } from "./statut-actions";
 
 export default function FicheCommandePage({ params, searchParams }: PageProps<"/commandes/[id]">) {
   return (
@@ -149,22 +149,12 @@ async function FicheCommande({ id, nouvelle }: { id: string; nouvelle: boolean }
         )}
 
         <h3 className="mb-2 text-sm font-semibold">Paiements</h3>
-        {paiements && paiements.length > 0 ? (
-          <ul className="divide-y text-sm">
-            {paiements.map((p, i) => (
-              <li key={p.id} className="flex items-center justify-between py-2">
-                <span>
-                  {formatDate(p.paye_le)} · {MODES_PAIEMENT.find((m) => m.cle === p.mode)?.label ?? "Autre"}
-                  {i === 0 && <span className="text-muted-foreground"> (acompte)</span>}
-                </span>
-                <span className="font-semibold">{formatFCFA(p.montant)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-muted-foreground">Aucun paiement pour l&apos;instant.</p>
-        )}
+        <PaiementsListe paiements={paiements ?? []} />
       </section>
+
+      {c.statut !== "livree" && c.statut !== "annulee" && (
+        <AnnulerCommande commandeId={c.id} totalPaye={c.total_paye ?? 0} />
+      )}
     </>
   );
 }

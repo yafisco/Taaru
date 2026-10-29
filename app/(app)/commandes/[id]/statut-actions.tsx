@@ -9,7 +9,7 @@ import { WhatsAppButton } from "@/components/whatsapp-button";
 import type { Enums } from "@/lib/database.types";
 import { formatFCFA, ORDRE_STATUTS, STATUTS } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { changerStatut } from "../actions";
+import { annulerCommande, changerStatut, reactiverCommande } from "../actions";
 
 type Statut = Enums<"statut_commande">;
 
@@ -29,7 +29,27 @@ export function StatutActions({ commandeId, statut, reste, modele, clientNom, li
   const [confirmerLivraison, setConfirmerLivraison] = useState(false);
 
   if (statut === "annulee") {
-    return <p className="rounded-lg bg-red-50 px-4 py-3 font-medium text-red-700">Cette commande est annulée.</p>;
+    return (
+      <div className="space-y-3">
+        <p className="rounded-lg bg-red-50 px-4 py-3 font-medium text-red-700">Cette commande est annulée.</p>
+        <Button
+          variant="outline"
+          size="lg"
+          disabled={enCours}
+          className="h-12 w-full text-base"
+          onClick={() =>
+            startTransition(async () => {
+              const r = await reactiverCommande(commandeId);
+              if ("erreur" in r) toast.error(r.erreur);
+              else toast.success("Commande réactivée : elle repart de « Reçue »");
+            })
+          }
+        >
+          {enCours ? <Loader2 className="animate-spin" /> : <Undo2 />}
+          Réactiver la commande
+        </Button>
+      </div>
+    );
   }
 
   const index = ORDRE_STATUTS.indexOf(statut);
@@ -151,5 +171,49 @@ export function StatutActions({ commandeId, statut, reste, modele, clientNom, li
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+// Bouton discret en bas de fiche, avec confirmation. Pas proposé pour une commande livrée.
+export function AnnulerCommande({ commandeId, totalPaye }: { commandeId: string; totalPaye: number }) {
+  const [ouvert, setOuvert] = useState(false);
+  const [enCours, startTransition] = useTransition();
+
+  function annuler() {
+    startTransition(async () => {
+      const r = await annulerCommande(commandeId);
+      if ("erreur" in r) return void toast.error(r.erreur);
+      toast.success("Commande annulée");
+      setOuvert(false);
+    });
+  }
+
+  return (
+    <>
+      <Button variant="ghost" className="mx-auto mt-6 flex h-11 text-destructive" onClick={() => setOuvert(true)}>
+        Annuler la commande
+      </Button>
+      <Dialog open={ouvert} onOpenChange={setOuvert}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-lg">Annuler cette commande ?</DialogTitle>
+            <DialogDescription className="text-base">
+              {totalPaye > 0
+                ? `Le client a déjà versé ${formatFCFA(totalPaye)}. Si tu le rembourses, supprime aussi ses paiements.`
+                : "Elle ne comptera plus dans tes commandes en cours. Tu pourras la réactiver."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-col">
+            <Button variant="destructive" size="lg" className="h-12 w-full" disabled={enCours} onClick={annuler}>
+              {enCours && <Loader2 className="animate-spin" />}
+              Oui, annuler la commande
+            </Button>
+            <Button variant="ghost" size="lg" className="h-12 w-full" onClick={() => setOuvert(false)}>
+              Non, garder
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
