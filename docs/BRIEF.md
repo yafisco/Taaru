@@ -31,7 +31,7 @@ et utilise WhatsApp tous les jours. Il est à l'aise avec Wave ou Orange Money, 
 
 ## Modèle économique (hypothèses à tester)
 - **Gratuit** : jusqu'à 30 commandes actives.
-- **Taaru Pro** : **3 000 FCFA/mois**, ou **15 000 FCFA** pour la saison Tabaski (3 mois), payé par Wave.
+- **Taaru Pro** : **3 000 FCFA/mois**, ou **7 500 FCFA** pour la saison Tabaski (3 mois, au lieu de 9 000 au mois), payé par Wave.
 - Plus tard : reçu PDF à l'image de l'atelier, mini-catalogue de modèles, comptes pour les apprentis.
 
 ## Test terrain (7 jours)

@@ -70,7 +70,7 @@ const QUESTIONS = [
   },
   {
     q: "Comment payer Taaru Pro ?",
-    r: "Par Wave. Tu commences gratuitement et tu passes à Pro seulement si Taaru t'aide vraiment.",
+    r: "Par Wave : 3 000 FCFA par mois, ou 7 500 FCFA pour les 3 mois de la saison Tabaski. Tu commences gratuitement et tu passes à Pro seulement si Taaru t'aide vraiment.",
   },
 ];
 
@@ -278,7 +278,7 @@ export default function LandingPage() {
                 <p className="mt-3 font-titres text-5xl">
                   3 000 <span className="text-2xl">FCFA/mois</span>
                 </p>
-                <p className="mt-1 text-white/80">ou 15 000 FCFA la saison Tabaski (3 mois)</p>
+                <p className="mt-1 text-white/80">ou 7 500 FCFA les 3 mois de la saison Tabaski, au lieu de 9 000</p>
                 <ul className="mt-6 flex-1 space-y-3">
                   {["Commandes en cours illimitées", "Tout ce qui est dans Gratuit", "Idéal pour la saison des fêtes", "Payé simplement par Wave"].map((t) => (
                     <li key={t} className="flex gap-2">
