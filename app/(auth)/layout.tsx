@@ -1,12 +1,11 @@
+import Image from "next/image";
+import logo from "@/public/logo.png";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex flex-1 flex-col items-center px-4 pt-12 pb-8">
-      <div className="mb-8 text-center">
-        <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-2xl bg-primary text-4xl font-bold text-primary-foreground">
-          t
-        </div>
-        <h1 className="text-2xl font-bold text-primary">Taaru</h1>
-        <p className="text-sm text-muted-foreground">Chaque commande sous contrôle, même à la Tabaski.</p>
+    <main className="flex flex-1 flex-col items-center px-4 pt-8 pb-8">
+      <div className="mb-8 w-full max-w-sm overflow-hidden rounded-2xl bg-primary px-6 py-5">
+        <Image src={logo} alt="Taaru : Couds. Taaru gère le reste." priority className="h-auto w-full" />
       </div>
       <div className="w-full max-w-sm">{children}</div>
     </main>

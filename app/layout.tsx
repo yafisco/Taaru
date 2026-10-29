@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Taaru",
-  description: "Chaque commande sous contrôle, même à la Tabaski.",
+  description: "Couds. Taaru gère le reste.",
   applicationName: "Taaru",
   // iPhone : « Sur l'écran d'accueil » ouvre l'app en plein écran
   appleWebApp: { capable: true, title: "Taaru", statusBarStyle: "default" },

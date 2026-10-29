@@ -137,12 +137,20 @@ create policy ateliers_own  on public.ateliers  for all to authenticated
   using (id = auth.uid()) with check (id = auth.uid());
 create policy clients_own   on public.clients   for all to authenticated
   using (atelier_id = auth.uid()) with check (atelier_id = auth.uid());
+-- En écriture, la ligne référencée (client, commande) doit aussi appartenir à l'atelier :
+-- sinon un atelier pourrait créer chez lui une commande ou des mesures pointant vers le client d'un autre.
 create policy mesures_own   on public.mesures   for all to authenticated
-  using (atelier_id = auth.uid()) with check (atelier_id = auth.uid());
+  using (atelier_id = auth.uid())
+  with check (atelier_id = auth.uid()
+    and exists (select 1 from public.clients c where c.id = client_id and c.atelier_id = auth.uid()));
 create policy commandes_own on public.commandes for all to authenticated
-  using (atelier_id = auth.uid()) with check (atelier_id = auth.uid());
+  using (atelier_id = auth.uid())
+  with check (atelier_id = auth.uid()
+    and exists (select 1 from public.clients c where c.id = client_id and c.atelier_id = auth.uid()));
 create policy paiements_own on public.paiements for all to authenticated
-  using (atelier_id = auth.uid()) with check (atelier_id = auth.uid());
+  using (atelier_id = auth.uid())
+  with check (atelier_id = auth.uid()
+    and exists (select 1 from public.commandes c where c.id = commande_id and c.atelier_id = auth.uid()));
 
 -- ---------- Storage : bucket privé « photos » ----------
 insert into storage.buckets (id, name, public)
