@@ -154,7 +154,7 @@ export function StatutActions({ commandeId, statut, reste, modele, clientNom, li
             <DialogTitle className="text-lg">C&apos;est prêt ! 🎉</DialogTitle>
             <DialogDescription className="text-base">
               {lienPret
-                ? `Préviens ${clientNom} que son ${modele.toLowerCase()} est prêt.`
+                ? `Préviens ${clientNom} que sa commande « ${modele} » est prête.`
                 : `Ajoute le numéro de ${clientNom} sur sa fiche pour le prévenir sur WhatsApp.`}
             </DialogDescription>
           </DialogHeader>

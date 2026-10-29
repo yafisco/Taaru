@@ -6,7 +6,7 @@ import { MODELES, type Langue } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 // Le vrai message que l'app envoie (mêmes modèles que lib/whatsapp.ts)
-const EXEMPLE = { client: "Moussa", modele: "grand boubou", atelier: "Atelier Ndiaye", reste: 15_000 };
+const EXEMPLE = { client: "Moussa", modele: "Grand boubou", atelier: "Atelier Ndiaye", reste: 15_000 };
 
 export function ApercuWhatsApp() {
   const [langue, setLangue] = useState<Langue>("wo");

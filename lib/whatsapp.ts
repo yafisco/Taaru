@@ -25,7 +25,8 @@ const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 export const MODELES = {
   pret: {
     fr: (v: Vars) =>
-      `Salam ${v.client} 👋\nVotre ${v.modele} est prêt chez ${v.atelier} ✂️\n` +
+      // « commande » est féminin : la phrase reste juste avec tous les modèles (taille basse, robe, boubou…)
+      `Salam ${v.client} 👋\nVotre commande « ${v.modele} » est prête chez ${v.atelier} ✂️\n` +
       (v.reste > 0 ? `Reste à payer : ${fcfa(v.reste)}.\n` : `Tout est réglé, merci !\n`) +
       `À bientôt 🙏`,
     wo: (v: Vars) =>
