@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Scripts tiers minifiés copiés tels quels (ex : worker de browser-image-compression)
+    "public/vendor/**",
   ]),
 ]);
 

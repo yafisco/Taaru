@@ -4,12 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Search, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { simplifier } from "@/lib/texte";
 import { afficherTelephone } from "@/lib/whatsapp";
 
 type ClientLigne = { id: string; nom: string; telephone: string | null; quartier: string | null };
-
-// "Ndèye" -> "ndeye" pour chercher sans se soucier des accents
-const simplifier = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
 // Filtrage côté navigateur : instantané, et aucune requête réseau à chaque lettre (3G)
 export function ClientsListe({ clients }: { clients: ClientLigne[] }) {

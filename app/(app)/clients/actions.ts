@@ -35,6 +35,31 @@ export async function creerClient(valeurs: ClientValeurs): Promise<Resultat> {
   redirect(`/clients/${data.id}`);
 }
 
+export type ClientRapide = { id: string; nom: string; telephone: string | null };
+
+// Création depuis « Nouvelle commande » : pas de redirection, on renvoie le client à sélectionner.
+// Si le numéro existe déjà, on renvoie le client existant au lieu d'une erreur.
+export async function creerClientRapide(nom: string, telephone: string): Promise<Resultat & { client?: ClientRapide }> {
+  const parse = clientSchema.safeParse({ nom, telephone, quartier: "", genre: null });
+  if (!parse.success) return { erreur: parse.error.issues[0].message };
+  const ligne = versLigne(parse.data);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("clients").insert(ligne).select("id, nom, telephone").single();
+  if (!error) {
+    revalidatePath("/clients");
+    return { client: data };
+  }
+  if (error.code !== "23505" || !ligne.telephone) return { erreur: ERREUR_RESEAU };
+
+  const { data: existant } = await supabase
+    .from("clients")
+    .select("id, nom, telephone")
+    .eq("telephone", ligne.telephone)
+    .maybeSingle();
+  return existant ? { client: existant } : { erreur: ERREUR_RESEAU };
+}
+
 export async function modifierClient(id: string, valeurs: ClientValeurs): Promise<Resultat> {
   const parse = clientSchema.safeParse(valeurs);
   if (!parse.success || !idSchema.safeParse(id).success) {
