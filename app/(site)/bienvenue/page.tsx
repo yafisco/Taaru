@@ -103,13 +103,14 @@ export default function LandingPage() {
   return (
     <div className="bg-white text-foreground">
       {/* ——— Haut de page : vidéo de Dakar ——— */}
-      <header className="relative flex min-h-[100svh] flex-col overflow-hidden bg-primary text-white">
+      <header className="relative flex min-h-svh flex-col overflow-hidden bg-primary text-white">
         <VideoFond
           mobile={{ video: "/videos/dakar-mobile.mp4", poster: "/videos/dakar-mobile.jpg" }}
           ordinateur={{ video: "/videos/dakar-ordinateur.mp4", poster: "/videos/dakar-ordinateur.jpg" }}
+          classeBouton="right-4 bottom-5"
         />
         {/* Voile vert pétrole : assure la lisibilité du texte sur la vidéo */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/65 to-primary/95" aria-hidden />
+        <div className="absolute inset-0 bg-linear-to-b from-primary/85 via-primary/65 to-primary/95" aria-hidden />
 
         <nav className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-end px-4 py-4">
           <Link href="/connexion" className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold backdrop-blur-sm hover:bg-white/10">
@@ -124,7 +125,7 @@ export default function LandingPage() {
             alt="Taaru : Couds. Taaru gère le reste."
             width={720}
             height={395}
-            className="h-auto w-72 animate-in drop-shadow-lg duration-1000 fade-in slide-in-from-bottom-4 md:w-[26rem]"
+            className="h-auto w-72 animate-in drop-shadow-lg duration-1000 fade-in slide-in-from-bottom-4 md:w-104"
           />
           <h1 className="mt-8 font-titres text-5xl leading-[1.05] animate-in duration-1000 fade-in slide-in-from-bottom-4 md:text-7xl">
             Fini le cahier perdu.
