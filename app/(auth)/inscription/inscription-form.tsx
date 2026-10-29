@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PinInput } from "@/components/pin-input";
 import { inscrire } from "../actions";
-import { Champ, ErreurFormulaire } from "../champ";
+import { Champ, ErreurFormulaire } from "@/components/champ";
 import { inscriptionSchema, type InscriptionValeurs } from "../schemas";
 
 export function InscriptionForm() {

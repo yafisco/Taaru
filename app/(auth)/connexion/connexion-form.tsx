@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PinInput } from "@/components/pin-input";
 import { connecter } from "../actions";
-import { Champ, ErreurFormulaire } from "../champ";
+import { Champ, ErreurFormulaire } from "@/components/champ";
 import { connexionSchema, type ConnexionValeurs } from "../schemas";
 
 export function ConnexionForm() {
