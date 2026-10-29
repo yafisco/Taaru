@@ -2,7 +2,9 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LimiteAtteinte } from "@/components/offre";
 import { PageHeader } from "@/components/page-header";
+import { lireOffre } from "@/lib/offre";
 import { createClient } from "@/lib/supabase/server";
 import { NouvelleCommandeForm } from "./nouvelle-commande-form";
 
@@ -23,13 +25,15 @@ export default function NouvelleCommandePage({ searchParams }: PageProps<"/comma
 
 async function Formulaire({ clientId }: { clientId: string | null }) {
   const supabase = await createClient();
-  const [{ data: auth }, { data: clients, error }] = await Promise.all([
+  const [{ data: auth }, offre, { data: clients, error }] = await Promise.all([
     supabase.auth.getClaims(),
+    lireOffre(supabase),
     // Les plus récents d'abord : ce sont souvent eux qu'on cherche
     supabase.from("clients").select("id, nom, telephone").order("created_at", { ascending: false }),
   ]);
   if (!auth?.claims) redirect("/connexion");
   if (error) throw new Error("Impossible de charger les clients");
+  if (offre?.limiteAtteinte) return <LimiteAtteinte enCours={offre.enCours} />;
 
   return (
     <NouvelleCommandeForm

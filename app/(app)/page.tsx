@@ -4,9 +4,11 @@ import { redirect } from "next/navigation";
 import { addDays, format, startOfMonth } from "date-fns";
 import { fr } from "date-fns/locale";
 import { AlertTriangle, CalendarClock, CheckCircle2, PartyPopper, Plus, Scissors } from "lucide-react";
+import { BandeauOffre } from "@/components/offre";
 import { Skeleton } from "@/components/ui/skeleton";
 import { calculerModeFete, type ModeFete } from "@/lib/fete";
 import { formatFCFA } from "@/lib/format";
+import { lireOffre } from "@/lib/offre";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -21,10 +23,11 @@ export default function AccueilPage() {
 async function TableauDeBord() {
   const supabase = await createClient();
   const maintenant = new Date();
-  const [{ data: atelier }, { data: commandes }, { data: paiements }] = await Promise.all([
+  const [{ data: atelier }, { data: commandes }, { data: paiements }, offre] = await Promise.all([
     supabase.from("ateliers").select("nom, capacite_semaine, fete_nom, fete_date").maybeSingle(),
     supabase.from("v_commandes").select("statut, date_livraison, reste, en_retard, evenement").neq("statut", "annulee"),
     supabase.from("paiements").select("montant").gte("paye_le", startOfMonth(maintenant).toISOString()),
+    lireOffre(supabase),
   ]);
   if (!atelier) redirect("/connexion");
 
@@ -63,6 +66,7 @@ async function TableauDeBord() {
         <h1 className="truncate text-2xl font-bold">{atelier.nom}</h1>
       </header>
 
+      {offre && <BandeauOffre offre={offre} />}
       {fete && <CarteFete fete={fete} />}
 
       {liste.length === 0 ? (

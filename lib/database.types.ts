@@ -14,6 +14,20 @@ export type Database = {
   }
   public: {
     Tables: {
+      abonnements: {
+        Row: { atelier_id: string; cree_le: string; cree_par: string | null; fin: string; id: string; mois: number; montant: number }
+        Insert: { atelier_id: string; cree_le?: string; cree_par?: string | null; fin: string; id?: string; mois: number; montant: number }
+        Update: { atelier_id?: string; cree_le?: string; cree_par?: string | null; fin?: string; id?: string; mois?: number; montant?: number }
+        Relationships: [
+          { foreignKeyName: "abonnements_atelier_id_fkey"; columns: ["atelier_id"]; isOneToOne: false; referencedRelation: "ateliers"; referencedColumns: ["id"] },
+        ]
+      }
+      admins: {
+        Row: { user_id: string }
+        Insert: { user_id: string }
+        Update: { user_id?: string }
+        Relationships: []
+      }
       ateliers: {
         Row: {
           capacite_semaine: number
@@ -23,6 +37,7 @@ export type Database = {
           id: string
           langue_messages: string
           nom: string
+          pro_jusqu_au: string | null
           telephone: string
           ville: string | null
         }
@@ -34,6 +49,7 @@ export type Database = {
           id: string
           langue_messages?: string
           nom: string
+          pro_jusqu_au?: string | null
           telephone: string
           ville?: string | null
         }
@@ -45,6 +61,7 @@ export type Database = {
           id?: string
           langue_messages?: string
           nom?: string
+          pro_jusqu_au?: string | null
           telephone?: string
           ville?: string | null
         }
@@ -303,7 +320,24 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      admin_ateliers: {
+        Args: never
+        Returns: {
+          commandes_en_cours: number
+          commandes_total: number
+          created_at: string
+          id: string
+          nom: string
+          pro_jusqu_au: string | null
+          telephone: string
+          total_paye: number
+          ville: string | null
+        }[]
+      }
+      admin_prolonger_pro: { Args: { p_atelier: string; p_mois: number; p_montant: number }; Returns: string }
+      admin_retirer_pro: { Args: { p_atelier: string }; Returns: undefined }
+      contact_taaru: { Args: never; Returns: string | null }
+      est_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       mode_paiement: "especes" | "wave" | "orange_money" | "autre"

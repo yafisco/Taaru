@@ -91,9 +91,19 @@ Avec le **2ᵉ numéro**, sur un autre téléphone ou en navigation privée :
 - [ ] Pareil avec une fiche commande (`/commandes/…`) : **page introuvable**
 - [ ] Les photos du 1ᵉʳ compte ne s'affichent pas (lien de photo copié : erreur)
 
+## 10. Offre Gratuit / Pro
+- [ ] Réglages : la ligne « Offre Gratuit · X / 30 commandes » mène à l'écran Taaru Pro
+- [ ] Écran Taaru Pro : ton numéro Wave s'affiche, les boutons « J'ai payé » ouvrent WhatsApp avec le message déjà écrit
+- [ ] À partir de 20 commandes en cours, l'accueil affiche le compteur doré
+- [ ] À 30 commandes en cours : « + Commande » affiche « Tu as 30 commandes en cours » au lieu du formulaire
+- [ ] Livrer une commande libère une place : le formulaire revient
+- [ ] Avec ton compte admin : Réglages > Administration, chercher l'atelier par numéro, « + 1 mois », confirmer
+- [ ] L'atelier voit « Tu es Pro jusqu'au … » et peut créer une 31ᵉ commande
+- [ ] Avec un compte non admin, `/admin` affiche « page introuvable »
+
 ---
 
-**Résultat :** ____ / 9 sections OK. Problèmes notés :
+**Résultat :** ____ / 10 sections OK. Problèmes notés :
 
 1.
 2.

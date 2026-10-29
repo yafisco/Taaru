@@ -5,6 +5,7 @@ import {
   Camera,
   Check,
   ChevronDown,
+  Handshake,
   MessageCircle,
   NotebookPen,
   PartyPopper,
@@ -70,7 +71,7 @@ const QUESTIONS = [
   },
   {
     q: "Comment payer Taaru Pro ?",
-    r: "Par Wave : 3 000 FCFA par mois, ou 7 500 FCFA pour les 3 mois de la saison Tabaski. Tu commences gratuitement et tu passes à Pro seulement si Taaru t'aide vraiment.",
+    r: "Par Wave : 5 000 FCFA par mois, ou 12 500 FCFA pour les 3 mois de la saison Tabaski. Tu commences gratuitement et tu passes à Pro seulement si Taaru t'aide vraiment.",
   },
 ];
 
@@ -245,7 +246,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ——— Prix ——— */}
+        {/* ——— Prix (mêmes montants que lib/offre.ts) ——— */}
         <section id="prix" className="bg-creme/40 px-4 py-20">
           <TitreSection sur="Prix" titre="Commence gratuitement" />
           <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
@@ -276,9 +277,9 @@ export default function LandingPage() {
                 </span>
                 <h3 className="text-xl font-semibold">Taaru Pro</h3>
                 <p className="mt-3 font-titres text-5xl">
-                  3 000 <span className="text-2xl">FCFA/mois</span>
+                  5 000 <span className="text-2xl">FCFA/mois</span>
                 </p>
-                <p className="mt-1 text-white/80">ou 7 500 FCFA les 3 mois de la saison Tabaski, au lieu de 9 000</p>
+                <p className="mt-1 text-white/80">ou 12 500 FCFA les 3 mois de la saison Tabaski, au lieu de 15 000</p>
                 <ul className="mt-6 flex-1 space-y-3">
                   {["Commandes en cours illimitées", "Tout ce qui est dans Gratuit", "Idéal pour la saison des fêtes", "Payé simplement par Wave"].map((t) => (
                     <li key={t} className="flex gap-2">
@@ -295,6 +296,20 @@ export default function LandingPage() {
               </div>
             </Apparition>
           </div>
+          <Apparition delai={300}>
+            <div className="mx-auto mt-6 flex max-w-3xl flex-col gap-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:flex-row sm:items-center">
+              <Handshake className="size-10 shrink-0 text-or" />
+              <div className="flex-1">
+                <h3 className="font-semibold">
+                  Installation accompagnée · <span className="whitespace-nowrap">10 000 FCFA</span>
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  On vient à ton atelier, on recopie ton cahier (clients et mesures) dans Taaru et on te montre tout en
+                  30 minutes. Une seule fois, et c&apos;est optionnel.
+                </p>
+              </div>
+            </div>
+          </Apparition>
         </section>
 
         {/* ——— Questions ——— */}

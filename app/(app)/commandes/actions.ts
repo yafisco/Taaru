@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { Enums } from "@/lib/database.types";
 import { formatFCFA, ORDRE_STATUTS } from "@/lib/format";
+import { ERREUR_LIMITE, MESSAGE_LIMITE } from "@/lib/offre";
 import { createClient } from "@/lib/supabase/server";
 import { commandeSchema, paiementSchema, type CommandeValeurs, type PaiementValeurs } from "./schemas";
 
@@ -12,6 +13,9 @@ const ERREUR_RESEAU = "Une erreur est survenue. Vérifie ta connexion et réessa
 const DEJA_CHANGE = "La commande a déjà changé. Recharge la page.";
 
 type Statut = Enums<"statut_commande">;
+
+// La base refuse une commande de plus en Gratuit (trigger verifier_limite_gratuite)
+const erreurDe = (e: { message: string }) => (e.message === ERREUR_LIMITE ? MESSAGE_LIMITE : ERREUR_RESEAU);
 export type ResultatStatut = { erreur: string } | { statut: Statut };
 
 /**
@@ -51,7 +55,7 @@ export async function creerCommande(
     photo_tissu_path: photoPath,
   });
   // 23505 = id déjà utilisé : la commande a déjà été créée (double clic), on y va
-  if (error && error.code !== "23505") return { erreur: ERREUR_RESEAU };
+  if (error && error.code !== "23505") return { erreur: erreurDe(error) };
 
   if (!error && v.acompte > 0) {
     const { error: errPaiement } = await supabase
@@ -104,7 +108,7 @@ export async function changerStatut(id: string, depuis: Statut, sens: 1 | -1): P
     .eq("id", id)
     .eq("statut", depuis)
     .select("id");
-  if (error) return { erreur: ERREUR_RESEAU };
+  if (error) return { erreur: erreurDe(error) };
   if (!data.length) return { erreur: DEJA_CHANGE };
 
   revalidatePath("/", "layout");
@@ -140,7 +144,7 @@ export async function reactiverCommande(id: string): Promise<ResultatStatut> {
     .eq("id", id)
     .eq("statut", "annulee")
     .select("id");
-  if (error) return { erreur: ERREUR_RESEAU };
+  if (error) return { erreur: erreurDe(error) };
   if (!data.length) return { erreur: DEJA_CHANGE };
 
   revalidatePath("/", "layout");

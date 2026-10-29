@@ -165,3 +165,116 @@ create policy photos_update on storage.objects for update to authenticated
   using (bucket_id = 'photos' and (storage.foldername(name))[1] = auth.uid()::text);
 create policy photos_delete on storage.objects for delete to authenticated
   using (bucket_id = 'photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- =====================================================================
+-- Offre Gratuit / Pro (migration « offre_pro »)
+-- =====================================================================
+alter table public.ateliers add column pro_jusqu_au date;  -- null = Gratuit ; Pro tant que >= aujourd'hui
+
+-- Le tailleur ne peut modifier que ses réglages : ni pro_jusqu_au, ni son numéro de connexion
+revoke insert, update on public.ateliers from anon, authenticated;
+grant update (nom, ville, capacite_semaine, fete_nom, fete_date, langue_messages) on public.ateliers to authenticated;
+
+-- Limite Gratuit : 30 commandes en cours (ni livrées ni annulées). Même valeur que LIMITE_GRATUIT (lib/offre.ts).
+create or replace function public.verifier_limite_gratuite() returns trigger
+language plpgsql set search_path = '' as $$
+begin
+  if new.statut in ('livree', 'annulee') then return new; end if;
+  -- Une commande déjà en cours qui change d'étape ne compte pas en plus
+  if tg_op = 'UPDATE' and old.statut not in ('livree', 'annulee') then return new; end if;
+  if exists (select 1 from public.ateliers a where a.id = new.atelier_id and a.pro_jusqu_au >= current_date) then
+    return new;
+  end if;
+  if (select count(*) from public.commandes c
+      where c.atelier_id = new.atelier_id and c.statut not in ('livree', 'annulee') and c.id <> new.id) >= 30 then
+    raise exception 'limite_gratuite';
+  end if;
+  return new;
+end; $$;
+
+create trigger trg_commandes_limite before insert or update of statut on public.commandes
+  for each row execute function public.verifier_limite_gratuite();
+revoke execute on function public.verifier_limite_gratuite() from public, anon, authenticated;
+
+-- ---------- Administration (activation de Pro après paiement Wave) ----------
+-- Pas de policy : tables invisibles par l'API, lues seulement par les fonctions ci-dessous.
+-- Ajouter un admin :
+--   insert into public.admins (user_id) select id from public.ateliers where telephone = '221XXXXXXXXX';
+create table public.admins (
+  user_id uuid primary key references auth.users(id) on delete cascade
+);
+alter table public.admins enable row level security;
+revoke all on public.admins from anon, authenticated;
+
+-- Historique des activations : sert de comptabilité
+create table public.abonnements (
+  id          uuid primary key default gen_random_uuid(),
+  atelier_id  uuid not null references public.ateliers(id) on delete cascade,
+  mois        int  not null check (mois between 1 and 12),
+  montant     int  not null check (montant >= 0),   -- FCFA reçus
+  fin         date not null,                        -- pro_jusqu_au après cette activation
+  cree_le     timestamptz not null default now(),
+  cree_par    uuid references auth.users(id) on delete set null
+);
+create index on public.abonnements (atelier_id, cree_le desc);
+alter table public.abonnements enable row level security;
+revoke all on public.abonnements from anon, authenticated;
+
+create or replace function public.est_admin() returns boolean
+language sql stable security definer set search_path = '' as $$
+  select exists (select 1 from public.admins where user_id = auth.uid());
+$$;
+
+-- Numéro de Taaru (Wave + WhatsApp) affiché aux tailleurs sur l'écran « Taaru Pro » : celui du 1er admin
+create or replace function public.contact_taaru() returns text
+language sql stable security definer set search_path = '' as $$
+  select a.telephone from public.admins ad join public.ateliers a on a.id = ad.user_id
+  order by a.created_at limit 1;
+$$;
+
+create or replace function public.admin_ateliers()
+returns table (
+  id uuid, nom text, telephone text, ville text, created_at timestamptz, pro_jusqu_au date,
+  commandes_en_cours int, commandes_total int, total_paye int
+)
+language plpgsql stable security definer set search_path = '' as $$
+begin
+  if not public.est_admin() then raise exception 'acces_refuse' using errcode = '42501'; end if;
+  return query
+    select a.id, a.nom, a.telephone, a.ville, a.created_at, a.pro_jusqu_au,
+      (select count(*)::int from public.commandes c where c.atelier_id = a.id and c.statut not in ('livree', 'annulee')),
+      (select count(*)::int from public.commandes c where c.atelier_id = a.id),
+      (select coalesce(sum(b.montant), 0)::int from public.abonnements b where b.atelier_id = a.id)
+    from public.ateliers a
+    order by a.created_at desc;
+end; $$;
+
+-- Prolonge Pro de p_mois à partir de la fin actuelle (ou d'aujourd'hui si Pro a expiré)
+create or replace function public.admin_prolonger_pro(p_atelier uuid, p_mois int, p_montant int) returns date
+language plpgsql security definer set search_path = '' as $$
+declare v_fin date;
+begin
+  if not public.est_admin() then raise exception 'acces_refuse' using errcode = '42501'; end if;
+  update public.ateliers
+    set pro_jusqu_au = (greatest(coalesce(pro_jusqu_au, current_date), current_date) + make_interval(months => p_mois))::date
+    where id = p_atelier
+    returning pro_jusqu_au into v_fin;
+  if v_fin is null then raise exception 'atelier_introuvable'; end if;
+  insert into public.abonnements (atelier_id, mois, montant, fin, cree_par)
+    values (p_atelier, p_mois, p_montant, v_fin, auth.uid());
+  return v_fin;
+end; $$;
+
+-- En cas d'erreur de saisie : Pro s'arrête tout de suite (l'historique est gardé)
+create or replace function public.admin_retirer_pro(p_atelier uuid) returns void
+language plpgsql security definer set search_path = '' as $$
+begin
+  if not public.est_admin() then raise exception 'acces_refuse' using errcode = '42501'; end if;
+  update public.ateliers set pro_jusqu_au = null where id = p_atelier;
+end; $$;
+
+-- Appelables connecté uniquement ; le contrôle admin est fait dans chaque fonction
+revoke execute on function public.est_admin(), public.contact_taaru(), public.admin_ateliers(),
+  public.admin_prolonger_pro(uuid, int, int), public.admin_retirer_pro(uuid) from public, anon;
+grant execute on function public.est_admin(), public.contact_taaru(), public.admin_ateliers(),
+  public.admin_prolonger_pro(uuid, int, int), public.admin_retirer_pro(uuid) to authenticated;
