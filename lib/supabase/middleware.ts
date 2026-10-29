@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/database.types";
 
 const ROUTES_PUBLIQUES = ["/connexion", "/inscription"];
+// Landing : servie sur « / » aux visiteurs non connectés (l'URL reste « / »)
+const LANDING = "/bienvenue";
 
 // Rafraîchit la session Supabase et protège les routes. Appelé par proxy.ts.
 export async function updateSession(request: NextRequest) {
@@ -33,6 +35,8 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const routePublique = ROUTES_PUBLIQUES.some((r) => pathname === r || pathname.startsWith(`${r}/`));
 
+  if (!connecte && pathname === "/") return reecrire(request, response, LANDING);
+  if (pathname === LANDING) return response; // visible par tous, même connecté (pour la prévisualiser)
   if (!connecte && !routePublique) return rediriger(request, response, "/connexion");
   if (connecte && routePublique) return rediriger(request, response, "/");
 
@@ -47,4 +51,13 @@ function rediriger(request: NextRequest, response: NextResponse, chemin: string)
   const redirection = NextResponse.redirect(url);
   response.cookies.getAll().forEach((c) => redirection.cookies.set(c));
   return redirection;
+}
+
+// Sert une autre page sans changer l'URL affichée.
+function reecrire(request: NextRequest, response: NextResponse, chemin: string) {
+  const url = request.nextUrl.clone();
+  url.pathname = chemin;
+  const reecriture = NextResponse.rewrite(url);
+  response.cookies.getAll().forEach((c) => reecriture.cookies.set(c));
+  return reecriture;
 }

@@ -7,6 +7,17 @@ Prévois **2 numéros** (le tien et celui d'un proche) pour l'étape 9.
 
 ---
 
+## 0. Landing page (visiteur non connecté, navigation privée)
+- [ ] L'URL ouvre la landing : image de Dakar tout de suite, puis la vidéo des pirogues qui démarre en fondu
+- [ ] Le texte reste lisible sur la vidéo (logo, « Fini le cahier perdu. », bouton doré)
+- [ ] En faisant défiler : les blocs apparaissent, la vidéo de la couturière démarre à son arrivée à l'écran
+- [ ] L'aperçu WhatsApp bascule Wolof / Français
+- [ ] La carte mode fête compte jusqu'à 21 et passe au rouge « Tu es complet ! »
+- [ ] Mode économie de données activé (Chrome Android) : pas de vidéo, seulement les images fixes
+- [ ] Le bouton « Créer mon atelier gratuitement » mène à l'inscription
+- [ ] Partager l'URL dans WhatsApp : l'aperçu montre le logo Taaru
+- [ ] Une fois connecté, la même URL ouvre le tableau de bord (et plus la landing)
+
 ## 1. Installation (PWA)
 - [ ] Ouvrir l'URL dans Chrome : la page de connexion s'affiche, barre du haut vert pétrole
 - [ ] Menu ⋮ > « Ajouter à l'écran d'accueil » (ou « Installer l'application »)
