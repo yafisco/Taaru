@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Camera, CheckCircle2, Loader2, RotateCcw, X } from "lucide-react";
+import { cheminMiniature } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -48,10 +49,24 @@ export function PhotoInput({ path, label, onChange }: Props) {
         useWebWorker: true,
         libURL: "/vendor/browser-image-compression-2.0.2.js",
       });
-      const { error } = await createClient()
-        .storage.from("photos")
-        .upload(path, compresse, { upsert: true, contentType: "image/jpeg" });
+      const options = { upsert: true, contentType: "image/jpeg" };
+      const stockage = createClient().storage.from("photos");
+      const { error } = await stockage.upload(path, compresse, options);
       if (error) throw error;
+      // Miniature (~15 Ko) pour les listes : 30 photos pleines pèseraient 7 Mo en 3G.
+      // Facultative : si elle échoue, la liste affiche une icône à la place.
+      try {
+        const mini = await imageCompression(compresse, {
+          maxSizeMB: 0.03,
+          maxWidthOrHeight: 240,
+          fileType: "image/jpeg",
+          useWebWorker: true,
+          libURL: "/vendor/browser-image-compression-2.0.2.js",
+        });
+        await stockage.upload(cheminMiniature(path), mini, options);
+      } catch {
+        // miniature facultative
+      }
       siDernier({ statut: "ok", path });
     } catch {
       siDernier({ statut: "erreur", message: "La photo n'est pas partie. Vérifie ta connexion." });
