@@ -99,7 +99,7 @@ group by c.id, cl.id;
 
 -- ---------- updated_at automatique ----------
 create or replace function public.set_updated_at() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = '' as $$
 begin new.updated_at = now(); return new; end; $$;
 
 create trigger trg_commandes_updated before update on public.commandes
@@ -122,6 +122,9 @@ end; $$;
 
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- Fonction de trigger uniquement : pas d'appel via /rest/v1/rpc
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
 -- ---------- RLS : chaque atelier ne voit que ses données ----------
 alter table public.ateliers  enable row level security;
