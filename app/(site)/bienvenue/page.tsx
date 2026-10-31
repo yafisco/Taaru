@@ -103,8 +103,8 @@ function TitreSection({ sur, titre, clair = false }: { sur?: string; titre: stri
 export default function LandingPage() {
   return (
     <div className="bg-white text-foreground">
-      {/* ——— Haut de page : vidéo de Dakar ——— */}
-      <header className="relative flex min-h-svh flex-col overflow-hidden bg-primary text-white">
+      {/* ——— Haut de page : vidéo de Dakar en fond, le titre, puis la vidéo de présentation dans une carte ——— */}
+      <header className="relative overflow-hidden bg-primary text-white">
         <VideoFond
           mobile={{ video: "/videos/dakar-mobile.mp4", poster: "/videos/dakar-mobile.jpg" }}
           ordinateur={{ video: "/videos/dakar-ordinateur.mp4", poster: "/videos/dakar-ordinateur.jpg" }}
@@ -119,16 +119,16 @@ export default function LandingPage() {
           </Link>
         </nav>
 
-        <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-4 pb-20 text-center">
+        <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center px-4 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element -- logo transparent, 72 Ko, affiché tout de suite */}
           <img
             src="/logo-transparent.png"
             alt="Taaru : Couds. Taaru gère le reste."
             width={720}
             height={395}
-            className="h-auto w-72 animate-in drop-shadow-lg duration-1000 fade-in slide-in-from-bottom-4 md:w-104"
+            className="h-auto w-56 animate-in drop-shadow-lg duration-1000 fade-in slide-in-from-bottom-4 md:w-80"
           />
-          <h1 className="mt-8 font-titres text-5xl leading-[1.05] animate-in duration-1000 fade-in slide-in-from-bottom-4 md:text-7xl">
+          <h1 className="mt-6 font-titres text-5xl leading-[1.05] animate-in duration-1000 fade-in slide-in-from-bottom-4 md:text-7xl">
             Fini le cahier perdu.
           </h1>
           <p className="mt-5 max-w-xl text-lg text-white/90 animate-in duration-1000 fade-in md:text-xl">
@@ -140,9 +140,16 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <a href="#probleme" className="relative z-10 mx-auto mb-6 animate-bounce text-white/80" aria-label="Découvrir Taaru">
-          <ChevronDown className="size-8" />
-        </a>
+        {/* Vidéo de présentation en boucle, muette : carrée sur mobile, 16:9 à partir de 768 px.
+            Elle porte son propre texte : elle se montre en entier dans une carte, au-dessus du voile. */}
+        <div className="relative z-10 mx-auto mt-10 w-full max-w-5xl px-4 pb-14 md:mt-14 md:pb-20">
+          <div className="relative aspect-square overflow-hidden rounded-3xl bg-[#f3e9d2] shadow-2xl ring-1 ring-white/15 md:aspect-video">
+            <VideoFond
+              mobile={{ video: "/videos/hero-mobile.mp4", poster: "/videos/hero-mobile.jpg" }}
+              ordinateur={{ video: "/videos/hero-ordinateur.mp4", poster: "/videos/hero-ordinateur.jpg" }}
+            />
+          </div>
+        </div>
       </header>
 
       <main>
@@ -341,9 +348,6 @@ export default function LandingPage() {
 
       <footer className="bg-[#0b3e42] px-4 py-8 text-center text-sm text-white/70">
         <p>© 2026 Taaru · Une solution YafaBizDigital, Thiès (Sénégal)</p>
-        <p className="mt-2 text-xs text-white/50">
-          Vidéos : Christopher Junior (Dakar) et Joaquin Reyes Ramos, via Pexels
-        </p>
       </footer>
     </div>
   );
